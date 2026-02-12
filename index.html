@@ -6,54 +6,31 @@
     <title>إلى ستيلا ❤️</title>
     <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        body {
-    margin: 0;
-    padding: 0;
-    min-height: 100dvh; /* بدل height: 100vh */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('image.jpg') no-repeat center center; /* حذف fixed */
-    background-size: cover;
-    background-color: #000;
-    overflow: hidden;
-    color: white;
-    font-family: 'Amiri', serif;
-}
-        
+        body { margin: 0; padding: 0; height: 100vh; display: flex; justify-content: center; align-items: center; background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('image.jpg') no-repeat center center fixed; background-size: cover; background-color: #000; overflow: hidden; color: white; font-family: 'Amiri', serif; }
         #heartsLayer { position: absolute; width: 100%; height: 100%; overflow: hidden; z-index: 1; }
         .bg-heart { position: absolute; bottom: -10%; color: rgba(255, 255, 255, 0.2); pointer-events: none; animation: floatUp var(--duration) linear infinite; }
         @keyframes floatUp { 0% { transform: translateY(0) rotate(0deg); opacity: 0; } 20% { opacity: 0.6; } 100% { transform: translateY(-120vh) rotate(360deg); opacity: 0; } }
         
         #welcomeScreen { position: fixed; inset: 0; background: #1a120b; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 1s ease; }
         #fingerprintContainer { position: relative; width: 110px; height: 140px; cursor: pointer; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 25px; display: flex; justify-content: center; align-items: center; }
-        #fp-svg { width: 75px; fill: #ff4e9b; filter: drop-shadow(0 0 8px #ff4e9b); }
+        #fp-svg { width: 75px; fill: #ff4e9b; filter: drop-shadow(0 0 8px #ff4e9b); transition: 0.5s; }
         .scanner-line { position: absolute; width: 100%; height: 2px; background: #00f2ff; box-shadow: 0 0 15px #00f2ff; animation: scan 2s linear infinite; }
         @keyframes scan { 0%, 100% { top: 15%; } 50% { top: 85%; } }
 
-        .overlay { position: absolute; z-index: 10; width: 320px; min-height: 250px; padding: 30px; box-sizing: border-box; border-radius: 35px; display: none; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.8s ease; }
+        .overlay { position: absolute; z-index: 10; width: 320px; min-height: 220px; padding: 30px; box-sizing: border-box; border-radius: 35px; display: none; flex-direction: column; justify-content: center; align-items: center; transition: opacity 1s ease; }
         .glass-box { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); }
         
-        .poem { font-size: 29px; text-align: center; line-height: 1.7; font-weight: bold; width: 100%; }
-        
+        .poem { font-size: 28px; text-align: center; line-height: 1.8; font-weight: bold; width: 100%; }
         #questionArea { text-align: center; z-index: 20; display: none; opacity: 0; transition: opacity 0.8s ease; }
         #questionArea h2 { font-size: 34px; margin-bottom: 30px; }
-        
         #finalMessage { font-size: 21px; line-height: 1.8; white-space: pre-line; text-align: center; display: none; width: 100%; }
         
         .btn-container { display: flex; justify-content: center; gap: 20px; }
-        button { padding: 12px 35px; font-size: 19px; border-radius: 50px; cursor: pointer; border: none; font-family: 'Amiri'; font-weight: bold; transition: transform 0.2s; }
+        button { padding: 12px 35px; font-size: 19px; border-radius: 50px; cursor: pointer; border: none; font-family: 'Amiri'; font-weight: bold; }
         #yesBtn { background: white; color: black; }
-        
-        /* تأثير اهتزاز "لالا" */
         #noBtn { background: #ff4e9b; color: white; position: relative; }
         .shake-no { animation: shake 0.4s ease-in-out; }
-
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            20%, 60% { transform: translateX(-10px); }
-            40%, 80% { transform: translateX(10px); }
-        }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-10px); } 40%, 80% { transform: translateX(10px); } }
     </style>
 </head>
 <body>
@@ -67,7 +44,7 @@
     <audio id="mySong" loop><source src="https://files.catbox.moe/n5ghkh.mp3" type="audio/mpeg"></audio>
 
     <div class="overlay glass-box" id="poemOverlay">
-        <div class="poem">وَلَعَلّنَا مَن بَعدِ بُعدٍ نَلتَقِي<br>وَيَطيَبُ قَلبي عِندَمَا أَلْقَاكِ<br>فَمَا رأَيتُ أَعَزّمَنكِ فيِ قَلبي<br>وَمَا رَغبتُ فيِ أَحَدٍ سِواَكِ</div>
+        <div class="poem" id="poemText"></div>
     </div>
 
     <div id="questionArea">
@@ -88,29 +65,59 @@
     setInterval(createHeart, 400);
 
     const fp = document.getElementById('fingerprintContainer');
+    const status = document.getElementById('status-text');
+    
     fp.onclick = function() {
-        document.getElementById('fp-svg').style.fill = "#4eff9b";
-        document.getElementById('status-text').innerText = "أهلاً ستيلا...";
+        // العودة للكلمات الثلاث
+        status.innerText = "جاري التحقق..";
+        document.getElementById('fp-svg').style.fill = "#00f2ff";
+        
         setTimeout(() => {
-            document.getElementById('mySong').play();
-            document.getElementById('welcomeScreen').style.opacity = '0';
+            document.getElementById('fp-svg').style.fill = "#4eff9b";
+            status.innerText = "مرحباً ستيلا";
+            
             setTimeout(() => {
-                document.getElementById('welcomeScreen').style.display = 'none';
-                const pOverlay = document.getElementById('poemOverlay');
-                pOverlay.style.display = 'flex';
-                setTimeout(()=> pOverlay.style.opacity='1', 50);
+                document.getElementById('mySong').play();
+                document.getElementById('welcomeScreen').style.opacity = '0';
+                
                 setTimeout(() => {
-                    pOverlay.style.opacity = '0';
+                    document.getElementById('welcomeScreen').style.display = 'none';
+                    
+                    // إظهار المربع أولاً
+                    const pOverlay = document.getElementById('poemOverlay');
+                    pOverlay.style.display = 'flex';
+                    setTimeout(()=> pOverlay.style.opacity='1', 50);
+
+                    // كتابة الشعر بعد ظهور المربع
                     setTimeout(() => {
-                        pOverlay.style.display = 'none';
-                        const qArea = document.getElementById('questionArea');
-                        qArea.style.display = 'block';
-                        setTimeout(()=> qArea.style.opacity='1', 50);
-                    }, 800);
-                }, 13000);
+                        const poemStr = "وَلَعَلّنَا مَن بَعدِ بُعدٍ نَلتَقِي\nوَيَطيَبُ قَلبي عِندَمَا أَلْقَاكِ\nفَمَا رأَيتُ أَعَزّمَنكِ فيِ قَلبي\nوَمَا رَغبتُ فيِ أَحَدٍ سِواَكِ";
+                        typeEffect(document.getElementById('poemText'), poemStr, 80, () => {
+                            setTimeout(() => {
+                                pOverlay.style.opacity = '0';
+                                setTimeout(() => {
+                                    pOverlay.style.display = 'none';
+                                    const qArea = document.getElementById('questionArea');
+                                    qArea.style.display = 'block';
+                                    setTimeout(()=> qArea.style.opacity='1', 50);
+                                }, 800);
+                            }, 5000);
+                        });
+                    }, 1000);
+                }, 1000);
             }, 1000);
         }, 1500);
     };
+
+    function typeEffect(element, text, speed, callback) {
+        let i = 0; element.innerHTML = "";
+        function typing() {
+            if (i < text.length) {
+                element.innerHTML += text.charAt(i) === '\n' ? '<br>' : text.charAt(i);
+                i++; setTimeout(typing, speed);
+            } else if (callback) { callback(); }
+        }
+        typing();
+    }
 
     document.getElementById('yesBtn').onclick = function() {
         const qArea = document.getElementById('questionArea');
@@ -120,28 +127,15 @@
             const fOverlay = document.getElementById('finalOverlay');
             fOverlay.style.display = 'flex';
             setTimeout(()=> fOverlay.style.opacity='1', 50);
-            const text = "وأنا أحبك أكثر يا غبيه.. أحبكككك\n\nيمكن ما أعرف أعبر بالكلام دايم، بس حبيت أصمم لكِ هالمكان الصغير عشان أقولك إنك أغلى شي صار لي..\n\nشكراً لأنك ستيلا ✨";
-            let i = 0; const target = document.getElementById('finalMessage');
+            const finalStr = "وأنا أحبك أكثر يا غبيه.. أحبكككك\n\nيمكن ما أعرف أعبر بالكلام دايم، بس حبيت أصمم لكِ هالمكان الصغير عشان أقولك إنك أغلى شي صار لي..\n\nشكراً لأنك ستيلا، وشكراً لأنك في حياتي✨";
+            const target = document.getElementById('finalMessage');
             target.style.display = 'block';
-            function typing() {
-                if (i < text.length) {
-                    target.innerHTML += text.charAt(i) === '\n' ? '<br>' : text.charAt(i);
-                    i++; setTimeout(typing, 60);
-                }
-            }
-            typing();
+            typeEffect(target, finalStr, 60);
         }, 800);
     };
 
-    // تعديل حركة زر "لا" ليكون اهتزاز "لالا"
     const noBtn = document.getElementById('noBtn');
-    noBtn.onmouseover = function() {
-        noBtn.classList.add('shake-no');
-        // إزالة الكلاس بعد انتهاء الانيميشن عشان يقدر يعيده
-        setTimeout(() => noBtn.classList.remove('shake-no'), 400);
-    };
-    // برضه لو حاولت تضغطه يهتز وما يسوي شي
-    noBtn.onclick = function() {
+    noBtn.onmouseover = noBtn.onclick = function() {
         noBtn.classList.add('shake-no');
         setTimeout(() => noBtn.classList.remove('shake-no'), 400);
     };
