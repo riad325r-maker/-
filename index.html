@@ -7,32 +7,24 @@
     <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body { margin: 0; padding: 0; height: 100vh; display: flex; justify-content: center; align-items: center; background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('image.jpg') no-repeat center center fixed; background-size: cover; background-color: #000; overflow: hidden; color: white; font-family: 'Amiri', serif; }
-        
         #heartsLayer { position: absolute; width: 100%; height: 100%; overflow: hidden; z-index: 1; }
         .bg-heart { position: absolute; bottom: -10%; color: rgba(255, 255, 255, 0.2); pointer-events: none; animation: floatUp var(--duration) linear infinite; }
         @keyframes floatUp { 0% { transform: translateY(0) rotate(0deg); opacity: 0; } 20% { opacity: 0.6; } 100% { transform: translateY(-120vh) rotate(360deg); opacity: 0; } }
-        
         #welcomeScreen { position: fixed; inset: 0; background: #1a120b; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 1s ease; }
         #fingerprintContainer { position: relative; width: 110px; height: 140px; cursor: pointer; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 25px; display: flex; justify-content: center; align-items: center; }
         #fp-svg { width: 75px; fill: #ff4e9b; filter: drop-shadow(0 0 8px #ff4e9b); transition: 0.5s; }
         .scanner-line { position: absolute; width: 100%; height: 2px; background: #00f2ff; box-shadow: 0 0 15px #00f2ff; animation: scan 2s linear infinite; }
         @keyframes scan { 0%, 100% { top: 15%; } 50% { top: 85%; } }
-
         .overlay { position: absolute; z-index: 10; width: 320px; min-height: 220px; padding: 30px; box-sizing: border-box; border-radius: 35px; display: none; flex-direction: column; justify-content: center; align-items: center; transition: opacity 1s ease; }
         .glass-box { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); }
-        
         .poem { font-size: 28px; text-align: center; line-height: 1.8; font-weight: bold; width: 100%; }
-        
         #questionArea { text-align: center; z-index: 20; display: none; opacity: 0; transition: opacity 0.8s ease; }
         #questionArea h2 { font-size: 34px; margin-bottom: 30px; }
-        
         #finalMessage { font-size: 21px; line-height: 1.8; white-space: pre-line; text-align: center; display: none; width: 100%; }
-        
         .btn-container { display: flex; justify-content: center; gap: 20px; }
         button { padding: 12px 35px; font-size: 19px; border-radius: 50px; cursor: pointer; border: none; font-family: 'Amiri'; font-weight: bold; }
         #yesBtn { background: white; color: black; }
         #noBtn { background: #ff4e9b; color: white; position: relative; }
-        
         .shake-no { animation: shake 0.4s ease-in-out; }
         @keyframes shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-10px); } 40%, 80% { transform: translateX(10px); } }
     </style>
@@ -41,11 +33,16 @@
     <div id="heartsLayer"></div>
 
     <div id="welcomeScreen">
-        <div id="fingerprintContainer"><div class="scanner-line"></div><svg id="fp-svg" viewBox="0 0 24 24"><path d="M17.81 4.47c-.08 0-.16-.02-.23-.06C15.66 3.42 14 3 12.01 3c-1.98 0-3.86.47-5.57 1.41-.24.13-.54.04-.67-.2-.13-.24-.04-.55.2-.68C7.82 2.52 9.86 2 12.01 2c2.13 0 3.99.47 5.57 1.39.24.14.32.45.19.69-.1.17-.28.27-.47.27-.14 0-.27-.04-.39-.11zM3.51 9.77c-.14 0-.28-.06-.38-.17-.19-.21-.17-.53.04-.72C5.02 7.22 7.27 6.13 9.61 5.61c.27-.06.54.11.6.38.06.27-.11.54-.38.6-2.09.46-4.1 1.44-5.81 2.98-.14.12-.31.18-.51.18zm17.02 0c-.2 0-.37-.06-.51-.18-1.71-1.54-3.72-2.52-5.81-2.98-.27-.06-.44-.33-.38-.6.06-.27.33-.44.6-.38 2.34.52 4.59 1.61 6.44 3.29.21.19.23.51.04.72-.1.11-.24.17-.38.17zM12.01 7c-1.28 0-2.55.22-3.77.67-.25.09-.53-.04-.62-.29-.09-.25.04-.53.29-.62 1.37-.51 2.82-.76 4.1-.76 1.28 0 2.73.25 4.1.76.25.09.38.37.29.62-.09.25-.37.38-.62.29-1.22-.45-2.49-.67-3.77-.67zm0 14c-4.41 0-8-3.59-8-8 0-.28.22-.5.5-.5s.5.22.5.5c0 3.86 3.14 7 7 7s7-3.14 7-7c0-2.5-.54-4.82-1.51-6.91-.12-.25-.01-.55.24-.67.25-.12.55-.01.67.24C19.45 8.04 20.01 10.45 20.01 13c0 4.41-3.59 8-8 8zm-5.01-8c0-2.76 2.24-5 5-5s5 2.24 5 5c0 .28-.22.5-.5.5s-.5-.22-.5-.5c0-2.21-1.79-4-4-4s-4 1.79-4 4c0 .28-.22.5-.5.5s-.5-.22-.5-.5z"/></svg></div>
+        <div id="fingerprintContainer">
+            <div class="scanner-line"></div>
+            <svg id="fp-svg" viewBox="0 0 24 24"><path d="M17.81 4.47c-.08 0-.16-.02-.23-.06C15.66 3.42 14 3 12.01 3c-1.98 0-3.86.47-5.57 1.41-.24.13-.54.04-.67-.2-.13-.24-.04-.55.2-.68C7.82 2.52 9.86 2 12.01 2c2.13 0 3.99.47 5.57 1.39.24.14.32.45.19.69-.1.17-.28.27-.47.27-.14 0-.27-.04-.39-.11zM3.51 9.77c-.14 0-.28-.06-.38-.17-.19-.21-.17-.53.04-.72C5.02 7.22 7.27 6.13 9.61 5.61c.27-.06.54.11.6.38.06.27-.11.54-.38.6-2.09.46-4.1 1.44-5.81 2.98-.14.12-.31.18-.51.18zm17.02 0c-.2 0-.37-.06-.51-.18-1.71-1.54-3.72-2.52-5.81-2.98-.27-.06-.44-.33-.38-.6.06-.27.33-.44.6-.38 2.34.52 4.59 1.61 6.44 3.29.21.19.23.51.04.72-.1.11-.24.17-.38.17zM12.01 7c-1.28 0-2.55.22-3.77.67-.25.09-.53-.04-.62-.29-.09-.25.04-.53.29-.62 1.37-.51 2.82-.76 4.1-.76 1.28 0 2.73.25 4.1.76.25.09.38.37.29.62-.09.25-.37.38-.62.29-1.22-.45-2.49-.67-3.77-.67zm0 14c-4.41 0-8-3.59-8-8 0-.28.22-.5.5-.5s.5.22.5.5c0 3.86 3.14 7 7 7s7-3.14 7-7c0-2.5-.54-4.82-1.51-6.91-.12-.25-.01-.55.24-.67.25-.12.55-.01.67.24C19.45 8.04 20.01 10.45 20.01 13c0 4.41-3.59 8-8 8zm-5.01-8c0-2.76 2.24-5 5-5s5 2.24 5 5c0 .28-.22.5-.5.5s-.5-.22-.5-.5c0-2.21-1.79-4-4-4s-4 1.79-4 4c0 .28-.22.5-.5.5s-.5-.22-.5-.5z"/></svg>
+        </div>
         <p id="status-text" style="margin-top:20px; color: #8a7a6e;">بصمة ستيلا مطلوبة</p>
     </div>
 
-    <audio id="mySong" loop><source src="https://files.catbox.moe/n5ghkh.mp3" type="audio/mpeg"></audio>
+    <audio id="mySong" loop preload="auto">
+        <source src="https://files.catbox.moe/n5ghkh.mp3" type="audio/mpeg">
+    </audio>
 
     <div class="overlay glass-box" id="poemOverlay">
         <div class="poem" id="poemText"></div>
@@ -61,6 +58,26 @@
     </div>
 
 <script>
+    const song = document.getElementById('mySong');
+    
+    // محاولة ذكية لتشغيل الصوت حتى لو النت ضعيف
+    function playSafe() {
+        let playPromise = song.play();
+        if (playPromise !== undefined) {
+            playPromise.then(_ => {
+                // بدأ التشغيل بنجاح
+            }).catch(error => {
+                // فشل التشغيل مؤقتاً، سنحاول مرة أخرى عند أي تفاعل
+                console.log("النت ضعيف، جاري المحاولة...");
+            });
+        }
+    }
+
+    // استمرار محاولة التشغيل إذا توقف بسبب النت
+    song.onwaiting = function() {
+        console.log("تحميل مؤقت...");
+    };
+
     function createHeart() {
         const h = document.createElement('div'); h.className = 'bg-heart'; h.innerHTML = '❤'; h.style.left = Math.random() * 100 + 'vw';
         const dur = Math.random() * 5 + 7; h.style.setProperty('--duration', dur + 's');
@@ -75,28 +92,26 @@
         status.innerText = "جاري التحقق...";
         document.getElementById('fp-svg').style.fill = "#00f2ff";
         
+        // محاولة بدء تحميل الصوت فور الضغط
+        song.load(); 
+
         setTimeout(() => {
             document.getElementById('fp-svg').style.fill = "#4eff9b";
-            status.innerText = "مرحباً ستيلا...";
+            status.innerText = "مرحباً ستيلا";
             
             setTimeout(() => {
-                document.getElementById('mySong').play();
+                playSafe(); // تشغيل الصوت
                 document.getElementById('welcomeScreen').style.opacity = '0';
                 
                 setTimeout(() => {
                     document.getElementById('welcomeScreen').style.display = 'none';
-                    
-                    // إظهار المربع أولاً
                     const pOverlay = document.getElementById('poemOverlay');
                     pOverlay.style.display = 'flex';
                     setTimeout(()=> pOverlay.style.opacity='1', 50);
 
-                    // بدء كتابة الشعر داخل المربع
                     setTimeout(() => {
                         const poemStr = "وَلَعَلّنَا مَن بَعدِ بُعدٍ نَلتَقِي\nوَيَطيَبُ قَلبي عِندَمَا أَلْقَاكِ\nفَمَا رأَيتُ أَعَزّمَنكِ فيِ قَلبي\nوَمَا رَغبتُ فيِ أَحَدٍ سِواَكِ";
-                        const poemTarget = document.getElementById('poemText');
-                        typeEffect(poemTarget, poemStr, 85, () => {
-                            // الانتظار بعد انتهاء الكتابة قبل الانتقال للسؤال
+                        typeEffect(document.getElementById('poemText'), poemStr, 85, () => {
                             setTimeout(() => {
                                 pOverlay.style.opacity = '0';
                                 setTimeout(() => {
@@ -114,21 +129,18 @@
     };
 
     function typeEffect(element, text, speed, callback) {
-        let i = 0;
-        element.innerHTML = "";
+        let i = 0; element.innerHTML = "";
         function typing() {
             if (i < text.length) {
                 element.innerHTML += text.charAt(i) === '\n' ? '<br>' : text.charAt(i);
-                i++;
-                setTimeout(typing, speed);
-            } else if (callback) {
-                callback();
-            }
+                i++; setTimeout(typing, speed);
+            } else if (callback) { callback(); }
         }
         typing();
     }
 
     document.getElementById('yesBtn').onclick = function() {
+        playSafe(); // تأكيد التشغيل مرة أخرى عند الضغط
         const qArea = document.getElementById('questionArea');
         qArea.style.opacity = '0';
         setTimeout(() => {
@@ -136,7 +148,6 @@
             const fOverlay = document.getElementById('finalOverlay');
             fOverlay.style.display = 'flex';
             setTimeout(()=> fOverlay.style.opacity='1', 50);
-            
             const finalStr = "وأنا أحبك أكثر يا غبيه.. أحبكككك\n\nيمكن ما أعرف أعبر بالكلام دايم، بس حبيت أصمم لكِ هالمكان الصغير عشان أقولك إنك أغلى شي صار لي..\n\nشكراً لأنك ستيلا، وشكراً لأنك في حياتي✨";
             const target = document.getElementById('finalMessage');
             target.style.display = 'block';
