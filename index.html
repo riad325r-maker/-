@@ -13,12 +13,8 @@
         
         #welcomeScreen { position: fixed; inset: 0; background: #0f0a07; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 1s ease; }
         #status-text { margin-top: 25px; font-size: 22px; color: #8a7a6e; font-weight: bold; }
-
         #fingerprintContainer { position: relative; width: 110px; height: 140px; cursor: pointer; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 25px; display: flex; justify-content: center; align-items: center; background: rgba(255,255,255,0.03); }
-        
-        /* البصمة باللون الأحمر في البداية */
         #fp-svg { width: 75px; fill: #ff4e4e; filter: drop-shadow(0 0 10px #ff4e4e); transition: all 0.6s ease; }
-        
         .scanner-line { position: absolute; width: 100%; height: 2px; background: #00f2ff; box-shadow: 0 0 15px #00f2ff; animation: scan 2s linear infinite; }
         @keyframes scan { 0%, 100% { top: 15%; } 50% { top: 85%; } }
         
@@ -33,15 +29,20 @@
         #noBtn { background: #ff4e9b; color: white; transition: 0.3s; }
         
         #finalMessage { font-size: 21px; line-height: 1.8; white-space: pre-line; text-align: center; }
-        #messageBox { width: 100%; display: none; margin-top: 20px; animation: fadeInUp 1s ease forwards; text-align: center; }
+        #messageBox { width: 100%; display: none; margin-top: 20px; animation: fadeInUp 1s ease forwards; text-align: center; transition: opacity 0.5s; }
         textarea { width: 100%; height: 90px; border-radius: 15px; padding: 12px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); color: white; font-family: 'Amiri'; font-size: 17px; resize: none; margin-bottom: 10px; outline: none; box-sizing: border-box; }
         #sendBtn { background: #4eff9b; color: #000; width: 100%; padding: 12px; font-size: 18px; border-radius: 15px; cursor: pointer; }
-        #responseMsg { display: none; color: #4eff9b; font-size: 20px; font-weight: bold; margin-top: 15px; }
+        
+        /* تصميم صندوق رد رياض الجديد */
+        #riyadhResponse { display: none; margin-top: 20px; padding: 20px; border-radius: 20px; background: rgba(78, 255, 155, 0.1); border: 1px solid #4eff9b; animation: fadeInUp 1s ease; width: 100%; box-sizing: border-box; }
+        #riyadhText { font-size: 19px; line-height: 1.7; color: white; white-space: pre-line; text-align: center; }
+
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
     <div id="heartsLayer"></div>
+    
     <div id="welcomeScreen">
         <div id="fingerprintContainer">
             <div class="scanner-line"></div>
@@ -69,28 +70,27 @@
                 <textarea name="message" placeholder="اكتبي لي رسالة..." required></textarea>
                 <button type="submit" id="sendBtn">إرسال ❤️</button>
             </form>
-            <p id="responseMsg">تم إرسال الرسالة بنجاح ✨</p>
+        </div>
+        <p id="responseMsg" style="display:none; color: #4eff9b; font-size: 20px; font-weight: bold; margin-top: 15px;">تم إرسال الرسالة بنجاح ✨</p>
+        
+        <div id="riyadhResponse">
+            <h3 style="color: #4eff9b; margin: 0 0 10px 0; font-size: 18px;">رسالة من رياض..</h3>
+            <div id="riyadhText"></div>
         </div>
     </div>
 
     <script>
         const song = document.getElementById('mySong');
 
+        // كود البصمة والتحقق
         document.getElementById('fingerprintContainer').onclick = function() {
             const status = document.getElementById('status-text');
             const fp = document.getElementById('fp-svg');
-            
-            // 1. أزرق عند "جاري التحقق"
             status.innerText = "جاري التحقق...";
             fp.style.fill = "#00f2ff";
-            fp.style.filter = "drop-shadow(0 0 12px #00f2ff)";
-            
             setTimeout(() => {
-                // 2. أخضر عند "مرحباً ستيلا"
                 status.innerText = "مرحباً ستيلا...";
                 fp.style.fill = "#4eff9b";
-                fp.style.filter = "drop-shadow(0 0 12px #4eff9b)";
-                
                 song.play();
                 setTimeout(() => {
                     document.getElementById('welcomeScreen').style.opacity = '0';
@@ -113,6 +113,7 @@
             }, 1500);
         };
 
+        // إرسال النموذج وإظهار رد رياض
         const form = document.getElementById('stellaForm');
         form.onsubmit = async (e) => {
             e.preventDefault();
@@ -123,12 +124,28 @@
                 body: data,
                 headers: { 'Accept': 'application/json' }
             });
+
             if (response.ok) {
-                form.style.display = 'none';
+                // 1. إخفاء مربع الإرسال
+                document.getElementById('messageBox').style.display = 'none';
+                // 2. إظهار تم الإرسال
                 document.getElementById('responseMsg').style.display = 'block';
+
+                // 3. إظهار صندوق رد رياض بعد ثانيتين
+                setTimeout(() => {
+                    document.getElementById('riyadhResponse').style.display = 'block';
+                    
+                    // ==========================================
+                    // هنا النص الذي سيظهر لستيلا بعد إرسال رسالتها:
+                    // ==========================================
+                    const riyadhMessage = "بضل زعلان صراحه اصلا ليش كذبتي علي لو انك قلتي لي كنت بتفهم\n\nليش كل مره تسوي كذا ما خليتيني حتى اودعك بس اتمنى ماتكوني زعلانه الحين..";
+                    
+                    typeEffect(document.getElementById('riyadhText'), riyadhMessage, 60);
+                }, 2000);
             }
         };
 
+        // أنيميشن القلوب الخلفية
         setInterval(() => {
             const h = document.createElement('div'); h.className = 'bg-heart'; h.innerHTML = '❤'; 
             h.style.left = Math.random() * 100 + 'vw';
