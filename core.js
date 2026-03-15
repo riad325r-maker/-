@@ -48,7 +48,7 @@ const translations = {
         copied: "Copied!", savedSuccess: "Saved successfully", removedSuccess: "Removed from saved",
         share: "Share App", shareTitle: "CineLingua - Learn English Smartly",
         shareText: "Check out this amazing app for learning English!",
-        verbs: "Verbs", grammar: "Grammar", appDownload: "Download App",
+        verbs: "Verbs", verbCount: "Verbs", grammar: "Grammar", appDownload: "Download App",
         heroTitle: "Learn English Smartly with CineLingua",
         heroDesc: "A comprehensive educational platform that helps you learn English through words, stories, tenses, and interactive quizzes",
         heroStart: "Start Now",

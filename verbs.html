@@ -10,15 +10,38 @@
     <style>
         .container { max-width: 1200px; margin: 100px auto 2rem; padding: 0 1.5rem; }
         .verbs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
-        .verb-card { background: var(--bg-card); border-radius: 1.5rem; padding: 1.5rem; box-shadow: var(--shadow); border: 2px solid transparent; transition: var(--transition); }
+        .verb-card { background: var(--bg-card); border-radius: 1.5rem; padding: 1.5rem; box-shadow: var(--shadow); border: 2px solid transparent; transition: var(--transition); position: relative; overflow: hidden; }
         .verb-card:hover { transform: translateY(-5px); border-color: var(--primary); box-shadow: var(--shadow-lg); }
-        .verb-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; }
-        .verb-infinitive { font-size: 1.5rem; font-weight: 800; color: var(--primary); }
-        .verb-arabic { font-size: 1rem; color: var(--text-secondary); }
+
+        .verb-type-badge { position: absolute; top: 0; right: 0; padding: 0.2rem 1rem; font-size: 0.6rem; font-weight: 800; text-transform: uppercase; border-bottom-left-radius: 1rem; color: white; }
+        .verb-type-badge.regular { background: #10b981; }
+        .verb-type-badge.irregular { background: #f59e0b; }
+        [dir="ltr"] .verb-type-badge { right: auto; left: 0; border-bottom-left-radius: 0; border-bottom-right-radius: 1rem; }
+
+        .verb-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.8rem; margin-top: 0.5rem; }
+        .verb-main { display: flex; flex-direction: column; gap: 0.3rem; }
+        .verb-infinitive { font-size: 1.8rem; font-weight: 800; color: var(--primary); line-height: 1; }
+        .verb-actions { display: flex; gap: 0.5rem; }
+        .action-btn { background: var(--bg-secondary); border: none; width: 32px; height: 32px; border-radius: 50%; color: var(--primary); cursor: pointer; transition: var(--transition); display: flex; align-items: center; justify-content: center; font-size: 0.9rem; }
+        .action-btn:hover { background: var(--primary); color: white; transform: scale(1.1); }
+
+        .verb-arabic { font-size: 1.1rem; color: var(--text-secondary); font-weight: 600; }
+
         .forms-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin-top: 1rem; }
         .form-item { background: var(--bg-secondary); padding: 0.6rem; border-radius: 0.8rem; text-align: center; }
         .form-label { font-size: 0.7rem; color: var(--gray); text-transform: uppercase; margin-bottom: 0.2rem; }
-        .form-value { font-weight: 700; color: var(--text-primary); direction: ltr; }
+        .form-value { font-weight: 700; color: var(--text-primary); direction: ltr; font-size: 1rem; }
+
+        .example-box { margin-top: 1.2rem; padding: 1rem; background: var(--bg-secondary); border-radius: 1rem; border-right: 4px solid var(--primary); }
+        [dir="ltr"] .example-box { border-right: none; border-left: 4px solid var(--primary); }
+        .ex-en { font-style: italic; color: var(--text-primary); margin-bottom: 0.3rem; font-weight: 500; }
+        .ex-ar { font-size: 0.9rem; color: var(--text-secondary); }
+
+        .load-more-btn { display: block; margin: 2rem auto; padding: 1rem 2.5rem; background: var(--primary); color: white; border: none; border-radius: 1rem; font-weight: 700; cursor: pointer; transition: var(--transition); box-shadow: var(--shadow-primary); }
+        .load-more-btn:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); opacity: 0.9; }
+
+        .filter-btn { padding: 0.6rem 1.5rem; border-radius: 2rem; border: 2px solid var(--primary); background: transparent; color: var(--primary); font-weight: 700; cursor: pointer; transition: var(--transition); }
+        .filter-btn.active { background: var(--primary); color: white; }
     </style>
 </head>
 <body>
@@ -26,11 +49,21 @@
     <div class="container">
         <div class="page-header">
             <h1 data-i18n="verbsTitle">الأفعال وتصاريفها</h1>
+            <div class="stats-badge">
+                <i class="fas fa-book-open"></i>
+                <span id="totalVerbs">0</span> <span data-i18n="verbCount">فعل</span>
+            </div>
         </div>
 
-        <div class="search-box" style="margin-bottom: 2rem">
+        <div class="search-box" style="margin-bottom: 1rem">
             <i class="fas fa-search"></i>
             <input type="text" id="verbSearch" data-i18n-placeholder="search" placeholder="ابحث عن فعل..." oninput="filterVerbs()">
+        </div>
+
+        <div class="filter-bar" style="margin-bottom: 2rem; display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap;">
+            <button class="filter-btn active" onclick="setFilter('all', this)" data-i18n="all">الكل</button>
+            <button class="filter-btn" onclick="setFilter('regular', this)" data-i18n="regular">منتظم</button>
+            <button class="filter-btn" onclick="setFilter('irregular', this)" data-i18n="irregular">شاذ</button>
         </div>
 
         <div class="verbs-grid" id="verbsGrid"></div>
@@ -41,12 +74,32 @@
     <script src="verbs-data.js"></script>
     <script src="core.js"></script>
     <script>
-        function renderVerbs(data = VERBS_DATA) {
+        let currentFilter = 'all';
+        let itemsShown = 20;
+        const INCREMENT = 20;
+
+        function renderVerbs(data = getFilteredData(), append = false) {
             const grid = document.getElementById('verbsGrid');
-            grid.innerHTML = data.map(v => `
-                <div class="verb-card">
+            const totalVerbsEl = document.getElementById('totalVerbs');
+            const dataToRender = data.slice(0, itemsShown);
+
+            totalVerbsEl.textContent = data.length;
+
+            const html = dataToRender.map(v => `
+                <div class="verb-card" data-type="${v.type}">
+                    <div class="verb-type-badge ${v.type}">${v.type}</div>
                     <div class="verb-header">
-                        <span class="verb-infinitive">${v.v1}</span>
+                        <div class="verb-main">
+                            <span class="verb-infinitive">${v.v1}</span>
+                            <div class="verb-actions">
+                                <button class="action-btn" onclick="speak('${v.v1}')" title="Listen">
+                                    <i class="fas fa-volume-up"></i>
+                                </button>
+                                <button class="action-btn" onclick="copyVerb('${v.v1}', '${v.v2}', '${v.v3}', '${v.ar}')" title="Copy">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                        </div>
                         <span class="verb-arabic">${v.ar}</span>
                     </div>
                     <div class="forms-grid">
@@ -59,18 +112,87 @@
                             <div class="form-value">${v.v3}</div>
                         </div>
                     </div>
+                    ${v.ex ? `
+                    <div class="example-box">
+                        <div class="ex-en">${v.ex}</div>
+                        <div class="ex-ar">${v.exAr || ''}</div>
+                    </div>
+                    ` : ''}
                 </div>
             `).join('');
+
+            if (append) {
+                grid.innerHTML += html;
+            } else {
+                grid.innerHTML = html;
+            }
+
+            updateLoadMoreButton(data.length);
+        }
+
+        function getFilteredData() {
+            const q = document.getElementById('verbSearch').value.toLowerCase();
+            return VERBS_DATA.filter(v => {
+                const matchesSearch = v.v1.toLowerCase().includes(q) ||
+                                     v.ar.includes(q) ||
+                                     v.v2.toLowerCase().includes(q);
+                const matchesFilter = currentFilter === 'all' || v.type === currentFilter;
+                return matchesSearch && matchesFilter;
+            });
         }
 
         function filterVerbs() {
-            const q = document.getElementById('verbSearch').value.toLowerCase();
-            const filtered = VERBS_DATA.filter(v =>
-                v.v1.toLowerCase().includes(q) ||
-                v.ar.includes(q) ||
-                v.v2.toLowerCase().includes(q)
-            );
-            renderVerbs(filtered);
+            itemsShown = INCREMENT;
+            renderVerbs();
+        }
+
+        function setFilter(type, btn) {
+            currentFilter = type;
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            itemsShown = INCREMENT;
+            renderVerbs();
+        }
+
+        function updateLoadMoreButton(totalItems) {
+            let loadMoreBtn = document.getElementById('loadMoreBtn');
+            if (itemsShown < totalItems) {
+                if (!loadMoreBtn) {
+                    loadMoreBtn = document.createElement('button');
+                    loadMoreBtn.id = 'loadMoreBtn';
+                    loadMoreBtn.className = 'load-more-btn';
+                    loadMoreBtn.innerHTML = 'عرض المزيد <i class="fas fa-chevron-down"></i>';
+                    loadMoreBtn.onclick = loadMore;
+                    document.querySelector('.container').appendChild(loadMoreBtn);
+                }
+                loadMoreBtn.style.display = 'block';
+            } else if (loadMoreBtn) {
+                loadMoreBtn.style.display = 'none';
+            }
+        }
+
+        function loadMore() {
+            itemsShown += INCREMENT;
+            renderVerbs();
+        }
+
+        function speak(text) {
+            if ('speechSynthesis' in window) {
+                const msg = new SpeechSynthesisUtterance(text);
+                msg.lang = 'en-US';
+                window.speechSynthesis.speak(msg);
+            }
+        }
+
+        function copyVerb(v1, v2, v3, ar) {
+            const text = `${v1} | ${v2} | ${v3} | ${ar}`;
+            navigator.clipboard.writeText(text).then(() => {
+                if (typeof showToast === 'function') {
+                    showToast(document.dir === 'rtl' ? 'تم النسخ!' : 'Copied!', 'success');
+                } else {
+                    alert('Copied!');
+                }
+            });
         }
 
         document.addEventListener('DOMContentLoaded', () => renderVerbs());
