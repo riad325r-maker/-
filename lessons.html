@@ -19,7 +19,7 @@
         .word-example { background: var(--bg-secondary); padding: 1rem; border-radius: 1rem; margin-bottom: 1.2rem; border-right: 4px solid var(--primary); }
         .example-en { font-weight: 600; color: var(--text-primary); margin-bottom: 0.4rem; }
         .example-ar { font-size: 0.9rem; color: var(--text-secondary); }
-        .word-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+        .word-actions { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem; }
         .action-btn { padding: 0.7rem; border: none; border-radius: 0.8rem; background: var(--bg-secondary); color: var(--text-primary); cursor: pointer; transition: var(--transition); font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 0.5rem; font-size: 0.85rem; }
         .action-btn:hover { background: var(--primary); color: white; }
         .action-btn.saved { background: var(--success); color: white; }
@@ -103,6 +103,7 @@
                     </div>
                     <div class="word-actions">
                         <button class="action-btn" onclick="speak('${w.word.replace(/'/g, "\\'")}')"><i class="fas fa-volume-up"></i></button>
+                        <button class="action-btn" onclick="copyText('${w.word.replace(/'/g, "\\'")}')"><i class="fas fa-copy"></i></button>
                         <button class="action-btn ${savedIds.includes(w.id)?'saved':''}" onclick="toggleSave(${w.id})">
                             <i class="fas fa-bookmark"></i>
                         </button>
@@ -159,13 +160,27 @@
         }
 
         function toggleSave(id) {
-            if(savedIds.includes(id)) savedIds = savedIds.filter(i => i !== id);
-            else savedIds.push(id);
+            if(savedIds.includes(id)) {
+                savedIds = savedIds.filter(i => i !== id);
+                showToast(t('removedSuccess'), 'warning');
+            } else {
+                savedIds.push(id);
+                showToast(t('savedSuccess'), 'success');
+            }
             localStorage.setItem('savedWords', JSON.stringify(savedIds));
             if(viewingSaved) {
                 filteredWords = allWords.filter(w => savedIds.includes(w.id));
             }
             renderWords();
+        }
+
+        async function copyText(txt) {
+            try {
+                await navigator.clipboard.writeText(txt);
+                showToast(t('copied'), 'success');
+            } catch (err) {
+                console.error('Copy failed', err);
+            }
         }
 
         function toggleSavedView() {

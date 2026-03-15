@@ -23,11 +23,11 @@
         /* Modal */
         .story-modal { position: fixed; inset: 0; background: var(--bg-primary); z-index: 2000; display: none; overflow-y: auto; }
         .story-modal.active { display: block; }
-        .modal-container { max-width: 800px; margin: 2rem auto; padding: 1.5rem; background: var(--bg-card); border-radius: 2rem; box-shadow: var(--shadow-lg); }
+        .modal-container { max-width: 850px; margin: 2rem auto; padding: 2rem; background: var(--bg-card); border-radius: 2rem; box-shadow: var(--shadow-lg); }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
         .close-modal { font-size: 1.5rem; cursor: pointer; color: var(--text-secondary); }
-        .story-content { font-size: 1.1rem; line-height: 1.8; margin-bottom: 2rem; direction: ltr; text-align: left; white-space: pre-line; }
-        .story-translation { background: var(--bg-secondary); padding: 1.5rem; border-radius: 1rem; margin-top: 2rem; display: none; }
+        .story-content { font-size: 1.25rem; line-height: 1.9; margin-bottom: 2rem; direction: ltr; text-align: left; white-space: pre-line; color: var(--text-primary); }
+        .story-translation { background: var(--bg-secondary); padding: 1.5rem; border-radius: 1rem; margin-top: 2rem; display: none; font-size: 1.1rem; }
         .story-translation.show { display: block; }
     </style>
 </head>
@@ -51,6 +51,10 @@
                         <button class="filter-tab" onclick="filterLevel('b1')">B1</button>
                     </div>
                 </div>
+            </div>
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="storySearch" data-i18n-placeholder="search" placeholder="ابحث عن قصة..." oninput="handleSearch()">
             </div>
         </div>
 
@@ -97,7 +101,23 @@
 
         function filterLevel(lvl) {
             document.querySelectorAll('.filter-tab').forEach(t => t.classList.toggle('active', t.getAttribute('onclick').includes(lvl)));
-            filteredStories = lvl === 'all' ? STORIES_DATA : STORIES_DATA.filter(s => s.level === lvl);
+            const q = document.getElementById('storySearch').value.toLowerCase();
+            filteredStories = STORIES_DATA.filter(s =>
+                (lvl === 'all' || s.level === lvl) &&
+                (s.title.toLowerCase().includes(q) || s.content.toLowerCase().includes(q) || s.arabic.includes(q))
+            );
+            renderStories();
+        }
+
+        function handleSearch() {
+            const q = document.getElementById('storySearch').value.toLowerCase();
+            const activeTab = document.querySelector('.filter-tab.active');
+            const lvl = activeTab.getAttribute('onclick').match(/'([^']+)'/)[1];
+
+            filteredStories = STORIES_DATA.filter(s =>
+                (lvl === 'all' || s.level === lvl) &&
+                (s.title.toLowerCase().includes(q) || s.content.toLowerCase().includes(q) || s.arabic.includes(q))
+            );
             renderStories();
         }
 

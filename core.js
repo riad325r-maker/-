@@ -13,6 +13,9 @@ const translations = {
         notifGranted: "مفعّلة ✓", notifDenied: "محظورة", notifDefault: "غير محددة",
         enableNotif: "تفعيل الإشعارات", notifEnabled: "الإشعارات مفعّلة",
         search: "ابحث...", save: "حفظ", saved: "محفوظة", listen: "استماع",
+        copied: "تم النسخ!", savedSuccess: "تم الحفظ بنجاح", removedSuccess: "تم الإزالة من المحفوظات",
+        share: "مشاركة التطبيق", shareTitle: "CineLingua - تعلم الإنجليزية بذكاء",
+        shareText: "شاهد هذا التطبيق الرائع لتعلم اللغة الإنجليزية!",
         // Additional labels used in pages
         verbs: "الأفعال", grammar: "الجرامر", appDownload: "تحميل التطبيق",
         heroTitle: "تعلم الإنجليزية بذكاء مع CineLingua",
@@ -42,6 +45,9 @@ const translations = {
         notifGranted: "Enabled ✓", notifDenied: "Blocked", notifDefault: "Not Set",
         enableNotif: "Enable Notifications", notifEnabled: "Notifications Enabled",
         search: "Search...", save: "Save", saved: "Saved", listen: "Listen",
+        copied: "Copied!", savedSuccess: "Saved successfully", removedSuccess: "Removed from saved",
+        share: "Share App", shareTitle: "CineLingua - Learn English Smartly",
+        shareText: "Check out this amazing app for learning English!",
         verbs: "Verbs", grammar: "Grammar", appDownload: "Download App",
         heroTitle: "Learn English Smartly with CineLingua",
         heroDesc: "A comprehensive educational platform that helps you learn English through words, stories, tenses, and interactive quizzes",
@@ -101,6 +107,20 @@ function setTheme(theme) {
 // --- 3. UI INJECTION (Navbar & Settings) ---
 function injectCommonUI() {
     const activePage = window.location.pathname.split('/').pop() || 'index.html';
+
+    // Toast Container
+    if (!document.querySelector('.toast-container')) {
+        document.body.insertAdjacentHTML('beforeend', '<div class="toast-container" id="toastContainer"></div>');
+    }
+
+    // Scroll Top Button
+    if (!document.querySelector('.scroll-top')) {
+        document.body.insertAdjacentHTML('beforeend', `
+            <button class="scroll-top" id="scrollTopBtn" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
+                <i class="fas fa-chevron-up"></i>
+            </button>
+        `);
+    }
 
     const navbarHTML = `
     <nav class="navbar">
@@ -176,6 +196,12 @@ function injectCommonUI() {
                         <i class="fas fa-bell"></i> <span data-i18n="enableNotif">${t('enableNotif')}</span>
                     </button>
                 </div>
+            </div>
+            <div class="settings-section">
+                <div class="settings-section-title"><i class="fas fa-share-alt"></i> <span data-i18n="share">${t('share')}</span></div>
+                <button class="notif-enable-btn" style="background: var(--bg-secondary); color: var(--text-primary); border: 1.5px solid var(--border);" onclick="shareApp()">
+                    <i class="fas fa-share-alt"></i> <span data-i18n="share">${t('share')}</span>
+                </button>
             </div>
         </div>
         <div class="settings-footer">CineLingua • v2.1</div>
@@ -253,9 +279,59 @@ function refreshNotifStatus() {
     }
 }
 
-// --- 5. INITIALIZATION ---
+// --- 5. TOASTS ---
+function showToast(message, type = 'info') {
+    const container = document.getElementById('toastContainer');
+    if (!container) return;
+
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+
+    let icon = 'info-circle';
+    if (type === 'success') icon = 'check-circle';
+    if (type === 'warning') icon = 'exclamation-triangle';
+    if (type === 'error') icon = 'times-circle';
+
+    toast.innerHTML = `<i class="fas fa-${icon}"></i> ${message}`;
+    container.appendChild(toast);
+
+    setTimeout(() => {
+        toast.style.animation = 'toastOut 0.3s forwards';
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
+// --- 6. UTILS ---
+async function shareApp() {
+    const shareData = {
+        title: t('shareTitle'),
+        text: t('shareText'),
+        url: window.location.origin
+    };
+
+    try {
+        if (navigator.share) {
+            await navigator.share(shareData);
+        } else {
+            await navigator.clipboard.writeText(window.location.origin);
+            showToast(t('copied'), 'success');
+        }
+    } catch (err) {
+        console.error('Share failed', err);
+    }
+}
+
+// --- 7. INITIALIZATION ---
 document.addEventListener('DOMContentLoaded', () => {
     injectCommonUI();
     setTheme(localStorage.getItem('cl-theme') || 'light');
     applyLanguage(currentLanguage);
+
+    // Scroll Top Visibility
+    window.addEventListener('scroll', () => {
+        const btn = document.getElementById('scrollTopBtn');
+        if (btn) {
+            btn.classList.toggle('show', window.scrollY > 400);
+        }
+    });
 });

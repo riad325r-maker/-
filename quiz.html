@@ -17,6 +17,12 @@
         .option-btn.correct { background: var(--success); color: white; border-color: var(--success); }
         .option-btn.wrong { background: var(--danger); color: white; border-color: var(--danger); }
         .score-display { text-align: center; font-size: 1.5rem; font-weight: 800; color: var(--primary); margin-top: 2rem; }
+
+        .quiz-progress { height: 10px; background: var(--bg-secondary); border-radius: 10px; margin-bottom: 2rem; overflow: hidden; }
+        .progress-bar { height: 100%; background: linear-gradient(90deg, var(--primary), var(--secondary)); width: 0%; transition: width 0.4s ease; }
+        .quiz-feedback { margin-top: 1rem; font-weight: 700; text-align: center; display: none; }
+        .result-img { width: 150px; margin-bottom: 1.5rem; }
+        .result-msg { font-size: 1.2rem; margin-bottom: 1rem; color: var(--text-secondary); }
     </style>
 </head>
 <body>
@@ -27,12 +33,16 @@
         </div>
 
         <div id="quizArea" class="quiz-card">
+            <div class="quiz-progress"><div class="progress-bar" id="progressBar"></div></div>
             <div id="questionContainer">
                 <p id="qText" class="question-text"></p>
                 <div id="options" class="options-grid"></div>
+                <div id="quizFeedback" class="quiz-feedback"></div>
             </div>
             <div id="resultArea" style="display:none; text-align:center">
+                <div id="resultIcon"></div>
                 <h2 data-i18n="quizFinished">انتهى الاختبار!</h2>
+                <div id="resultMsg" class="result-msg"></div>
                 <div id="finalScore" class="score-display"></div>
                 <button class="saved-btn" style="margin-top:2rem; width:100%" onclick="location.reload()" data-i18n="retry">إعادة المحاولة</button>
             </div>
@@ -74,6 +84,9 @@
                 showResult();
                 return;
             }
+            const progress = (currentQ / quizWords.length) * 100;
+            document.getElementById('progressBar').style.width = `${progress}%`;
+
             const w = quizWords[currentQ];
             document.getElementById('qText').textContent = `${currentQ + 1}. What is the meaning of "${w.word}"?`;
 
@@ -98,9 +111,11 @@
             if(selected === correct) {
                 btn.classList.add('correct');
                 score++;
+                showToast(currentLanguage === 'ar' ? 'إجابة صحيحة! 🌟' : 'Correct! 🌟', 'success');
             } else {
                 btn.classList.add('wrong');
                 btns.forEach(b => { if(b.textContent === correct) b.classList.add('correct'); });
+                showToast(currentLanguage === 'ar' ? 'إجابة خاطئة ❌' : 'Wrong answer ❌', 'error');
             }
 
             setTimeout(() => {
@@ -110,9 +125,28 @@
         }
 
         function showResult() {
+            document.getElementById('progressBar').style.width = `100%`;
             document.getElementById('questionContainer').style.display = 'none';
             document.getElementById('resultArea').style.display = 'block';
-            document.getElementById('finalScore').textContent = `${score} / ${quizWords.length}`;
+
+            const percent = (score / quizWords.length) * 100;
+            let msg = '';
+            let icon = '';
+
+            if(percent >= 80) {
+                msg = currentLanguage === 'ar' ? 'أداء ممتاز! أنت مذهل 🏆' : 'Excellent performance! You are amazing 🏆';
+                icon = '<i class="fas fa-trophy" style="font-size: 4rem; color: #f59e0b; margin-bottom: 1rem; display: block;"></i>';
+            } else if(percent >= 50) {
+                msg = currentLanguage === 'ar' ? 'جيد جداً، استمر في الممارسة! 👍' : 'Very good, keep practicing! 👍';
+                icon = '<i class="fas fa-star" style="font-size: 4rem; color: #6366f1; margin-bottom: 1rem; display: block;"></i>';
+            } else {
+                msg = currentLanguage === 'ar' ? 'لا بأس، حاول مرة أخرى وستتحسن 💪' : 'Not bad, try again and you will improve 💪';
+                icon = '<i class="fas fa-redo-alt" style="font-size: 4rem; color: #94a3b8; margin-bottom: 1rem; display: block;"></i>';
+            }
+
+            document.getElementById('resultIcon').innerHTML = icon;
+            document.getElementById('resultMsg').textContent = msg;
+            document.getElementById('finalScore').textContent = `${score} / ${quizWords.length} (${percent}%)`;
         }
 
         document.addEventListener('DOMContentLoaded', () => {
