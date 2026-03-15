@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CineLingua | الاختبارات</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .container { max-width: 800px; margin: 100px auto 2rem; padding: 0 1.5rem; }
+        .quiz-card { background: var(--bg-card); border-radius: 2rem; padding: 2rem; box-shadow: var(--shadow-lg); }
+        .question-text { font-size: 1.3rem; font-weight: 800; margin-bottom: 2rem; direction: ltr; text-align: left; }
+        .options-grid { display: grid; gap: 1rem; }
+        .option-btn { padding: 1rem 1.5rem; border: 2px solid var(--border); border-radius: 1rem; background: var(--bg-secondary); cursor: pointer; transition: var(--transition); text-align: left; direction: ltr; font-size: 1rem; font-family: inherit; font-weight: 600; }
+        .option-btn:hover:not(:disabled) { border-color: var(--primary); background: white; }
+        .option-btn.correct { background: var(--success); color: white; border-color: var(--success); }
+        .option-btn.wrong { background: var(--danger); color: white; border-color: var(--danger); }
+        .score-display { text-align: center; font-size: 1.5rem; font-weight: 800; color: var(--primary); margin-top: 2rem; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="page-header">
+            <h1 data-i18n="quizTitle">الاختبارات</h1>
+        </div>
+
+        <div id="quizArea" class="quiz-card">
+            <div id="questionContainer">
+                <p id="qText" class="question-text"></p>
+                <div id="options" class="options-grid"></div>
+            </div>
+            <div id="resultArea" style="display:none; text-align:center">
+                <h2 data-i18n="quizFinished">انتهى الاختبار!</h2>
+                <div id="finalScore" class="score-display"></div>
+                <button class="saved-btn" style="margin-top:2rem; width:100%" onclick="location.reload()" data-i18n="retry">إعادة المحاولة</button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer"><p>© 2026 CineLingua — جميع الحقوق محفوظة</p></footer>
+
+    <script src="beginner-data.js"></script>
+    <script src="intermediate-data.js"></script>
+    <script src="advanced-data.js"></script>
+    <script src="words-data.js"></script>
+    <script src="core.js"></script>
+    <script>
+        let currentQ = 0;
+        let score = 0;
+        let quizWords = [];
+        let allWordsArray = [];
+
+        function startQuiz() {
+            // Flatten WORDS_DATA into a single array
+            allWordsArray = [
+                ...(WORDS_DATA.beginner || []),
+                ...(WORDS_DATA.intermediate || []),
+                ...(WORDS_DATA.advanced || [])
+            ];
+
+            if (allWordsArray.length === 0) {
+                console.error("No words found in WORDS_DATA");
+                return;
+            }
+
+            quizWords = [...allWordsArray].sort(() => 0.5 - Math.random()).slice(0, 10);
+            showQuestion();
+        }
+
+        function showQuestion() {
+            if(currentQ >= quizWords.length) {
+                showResult();
+                return;
+            }
+            const w = quizWords[currentQ];
+            document.getElementById('qText').textContent = `${currentQ + 1}. What is the meaning of "${w.word}"?`;
+
+            const options = [w.arabic];
+            while(options.length < 4) {
+                const randWord = allWordsArray[Math.floor(Math.random() * allWordsArray.length)];
+                const rand = randWord.arabic;
+                if(!options.includes(rand)) options.push(rand);
+            }
+            options.sort(() => 0.5 - Math.random());
+
+            const optContainer = document.getElementById('options');
+            optContainer.innerHTML = options.map(opt => `
+                <button class="option-btn" onclick="checkAnswer(this, '${opt}', '${w.arabic}')">${opt}</button>
+            `).join('');
+        }
+
+        function checkAnswer(btn, selected, correct) {
+            const btns = document.querySelectorAll('.option-btn');
+            btns.forEach(b => b.disabled = true);
+
+            if(selected === correct) {
+                btn.classList.add('correct');
+                score++;
+            } else {
+                btn.classList.add('wrong');
+                btns.forEach(b => { if(b.textContent === correct) b.classList.add('correct'); });
+            }
+
+            setTimeout(() => {
+                currentQ++;
+                showQuestion();
+            }, 1500);
+        }
+
+        function showResult() {
+            document.getElementById('questionContainer').style.display = 'none';
+            document.getElementById('resultArea').style.display = 'block';
+            document.getElementById('finalScore').textContent = `${score} / ${quizWords.length}`;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Wait for WORDS_DATA to load
+            setTimeout(startQuiz, 500);
+        });
+    </script>
+</body>
+</html>
