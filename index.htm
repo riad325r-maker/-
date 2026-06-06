@@ -1,4 +1,4 @@
-<DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -18,22 +18,23 @@
         .scanner-line { position: absolute; width: 100%; height: 2px; background: #00f2ff; box-shadow: 0 0 15px #00f2ff; animation: scan 2s linear infinite; }
         @keyframes scan { 0%, 100% { top: 15%; } 50% { top: 85%; } }
 
-        .overlay { position: absolute; z-index: 10; width: 90%; max-width: 360px; min-height: 220px; padding: 25px; border-radius: 35px; display: none; flex-direction: column; justify-content: center; align-items: center; transition: opacity 1s ease; box-sizing: border-box; }
+        /* تعديل الـ z-index والـ display لتفادي تداخل النوافذ */
+        .overlay { position: absolute; z-index: 10; width: 90%; max-width: 360px; min-height: 220px; padding: 25px; border-radius: 35px; display: none; opacity: 0; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.8s ease; box-sizing: border-box; }
         .glass-box { background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); }
         .poem { font-size: 26px; text-align: center; line-height: 1.8; font-weight: bold; }
 
-        #questionArea { text-align: center; z-index: 20; display: none; opacity: 0; transition: opacity 0.8s ease; width: 100%; }
-        .btn-container { display: flex; justify-content: center; gap: 20px; margin-top: 20px; }
+        #questionArea { z-index: 20; }
+        .btn-container { display: flex; justify-content: center; gap: 20px; margin-top: 20px; width: 100%; position: relative; }
         button { padding: 12px 35px; font-size: 19px; border-radius: 50px; cursor: pointer; border: none; font-family: 'Amiri'; font-weight: bold; }
-        #yesBtn { background: white; color: black; }
-        #noBtn { background: #ff4e9b; color: white; transition: 0.3s; }
+        #yesBtn { background: white; color: black; z-index: 22; }
+        #noBtn { background: #ff4e9b; color: white; transition: transform 0.2s ease; z-index: 25; position: relative; }
 
+        #finalOverlay { z-index: 30; }
         #finalMessage { font-size: 21px; line-height: 1.8; white-space: pre-line; text-align: center; }
-        #messageBox { width: 100%; display: none; margin-top: 20px; animation: fadeInUp 1s ease forwards; text-align: center; transition: opacity 0.5s; }
+        #messageBox { width: 100%; display: none; margin-top: 20px; animation: fadeInUp 1s ease forwards; text-align: center; }
         textarea { width: 100%; height: 90px; border-radius: 15px; padding: 12px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); color: white; font-family: 'Amiri'; font-size: 17px; resize: none; margin-bottom: 10px; outline: none; box-sizing: border-box; }
-        #sendBtn { background: #4eff9b; color: #000; width: 100%; padding: 12px; font-size: 18px; border-radius: 15px; cursor: pointer; }
+        #sendBtn { background: #4eff9b; color: #000; width: 100%; padding: 12px; font-size: 18px; border-radius: 15px; cursor: pointer; font-family: 'Amiri'; font-weight: bold; }
 
-        /* تصميم صندوق رد رياض الجديد */
         #riyadhResponse { display: none; margin-top: 20px; padding: 20px; border-radius: 20px; background: rgba(78, 255, 155, 0.1); border: 1px solid #4eff9b; animation: fadeInUp 1s ease; width: 100%; box-sizing: border-box; }
         #riyadhText { font-size: 19px; line-height: 1.7; color: white; white-space: pre-line; text-align: center; }
 
@@ -91,19 +92,22 @@
             setTimeout(() => {
                 status.innerText = "مرحباً ستيلا...";
                 fp.style.fill = "#4eff9b";
-                song.play();
+                song.play().catch(e => console.log("Audio play blocked"));
                 setTimeout(() => {
                     document.getElementById('welcomeScreen').style.opacity = '0';
                     setTimeout(() => {
                         document.getElementById('welcomeScreen').style.display = 'none';
-                        const po = document.getElementById('poemOverlay'); po.style.display = 'flex';
+                        const po = document.getElementById('poemOverlay'); 
+                        po.style.display = 'flex';
                         setTimeout(() => po.style.opacity = '1', 50);
+                        
                         typeEffect(document.getElementById('poemText'), "وَلَعَلّنَا مَن بَعدِ بُعدٍ نَلتَقِي\nوَيَطيَبُ قَلبي عِندَمَا أَلْقَاكِ\nفَمَا رأَيتُ أَعَزّمَنكِ فيِ قَلبي\nوَمَا رَغبتُ فيِ أَحَدٍ سِواَكِ", 80, () => {
                             setTimeout(() => {
                                 po.style.opacity = '0';
                                 setTimeout(() => {
                                     po.style.display = 'none';
-                                    const qa = document.getElementById('questionArea'); qa.style.display = 'flex';
+                                    const qa = document.getElementById('questionArea'); 
+                                    qa.style.display = 'flex';
                                     setTimeout(() => qa.style.opacity = '1', 50);
                                 }, 800);
                             }, 4000);
@@ -113,35 +117,63 @@
             }, 1500);
         };
 
+        // حركة هروب زر "لا" عند الاقتراب أو اللمس المباشر لمنع الضغط عليه
+        const noBtn = document.getElementById('noBtn');
+        function moveNoButton() {
+            const x = Math.random() * 160 - 80; // تحرك عشوائي أفقي
+            const y = Math.random() * 160 - 80; // تحرك عشوائي عمودي
+            noBtn.style.transform = `translate(${x}px, ${y}px)`;
+        }
+        noBtn.onmouseover = moveNoButton;
+        noBtn.ontouchstart = function(e) { e.preventDefault(); moveNoButton(); };
+        noBtn.onclick = function(e) { e.preventDefault(); moveNoButton(); };
+
+        // عند الضغط على أكييييد
+        document.getElementById('yesBtn').onclick = function() {
+            document.getElementById('questionArea').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('questionArea').style.display = 'none';
+                const fo = document.getElementById('finalOverlay'); 
+                fo.style.display = 'flex';
+                setTimeout(() => fo.style.opacity = '1', 50);
+                
+                // إضافة نص ترحيبي بسيط بدلاً من الفراغ التام لتهيئة ظهور الصندوق
+                typeEffect(document.getElementById('finalMessage'), "شكراً لقلبكِ.. ✨", 60, () => {
+                    setTimeout(() => {
+                        document.getElementById('messageBox').style.display = 'block';
+                    }, 1000);
+                });
+            }, 800);
+        };
+
         // إرسال النموذج وإظهار رد رياض
         const form = document.getElementById('stellaForm');
         form.onsubmit = async (e) => {
             e.preventDefault();
+            document.getElementById('sendBtn').disabled = true;
             document.getElementById('sendBtn').innerText = "جاري الإرسال...";
             const data = new FormData(form);
-            const response = await fetch(form.action, {
-                method: 'POST',
-                body: data,
-                headers: { 'Accept': 'application/json' }
-            });
+            
+            try {
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    body: data,
+                    headers: { 'Accept': 'application/json' }
+                });
 
-            if (response.ok) {
-                // 1. إخفاء مربع الإرسال
-                document.getElementById('messageBox').style.display = 'none';
-                // 2. إظهار تم الإرسال
-                document.getElementById('responseMsg').style.display = 'block';
+                if (response.ok) {
+                    document.getElementById('messageBox').style.display = 'none';
+                    document.getElementById('responseMsg').style.display = 'block';
 
-                // 3. إظهار صندوق رد رياض بعد ثانيتين
-                setTimeout(() => {
-                    document.getElementById('riyadhResponse').style.display = 'block';
-
-                    // ==========================================
-                    // هنا النص الذي سيظهر لستيلا بعد إرسال رسالتها:
-                    // ==========================================
-                    const riyadhMessage = "ستيلا؟ \nزعلان منك.\nضيعتي كل فرصك للاسف ماقدرتي حبي لك ماقدرتي اي شي سويته عشانك و تبي و تكلميني بعد كل الي سويتيه؟ \nعطيني سبب واحد بس يخليني اسامحك مافي.\nتحملت بلوكات تحملت كلامك الي كان يجرحني قلت عادي ممكن تفهم ولو شوي بس وش الي صار؟ \nحتى ثقتك فيني راحت وانا اشوفها اهم شي.";
-
-                    typeEffect(document.getElementById('riyadhText'), riyadhMessage, 60);
-                }, 2000);
+                    setTimeout(() => {
+                        document.getElementById('riyadhResponse').style.display = 'block';
+                        const riyadhMessage = "ستيلا؟ \nزعلان منك.\nضيعتي كل فرصك للاسف ماقدرتي حبي لك ماقدرتي اي شي سويته عشانك و تبي و تكلميني بعد كل الي سويتيه؟ \nعطيني سبب واحد بس يخليني اسامحك مافي.\nتحملت بلوكات تحملت كلامك الي كان يجرحني قلت عادي ممكن تفهم ولو شوي بس وش الي صار؟ \nحتى ثقتك فيني راحت وانا اشوفها اهم شي.";
+                        typeEffect(document.getElementById('riyadhText'), riyadhMessage, 60);
+                    }, 2000);
+                }
+            } catch (error) {
+                document.getElementById('sendBtn').innerText = "حدث خطأ، حاول مجدداً";
+                document.getElementById('sendBtn').disabled = false;
             }
         };
 
@@ -164,25 +196,6 @@
             }
             typing();
         }
-
-        document.getElementById('noBtn').onclick = function() {
-            this.style.transform = `translate(${Math.random()*40}px, ${Math.random()*40}px)`;
-        };
-
-        document.getElementById('yesBtn').onclick = function() {
-            document.getElementById('questionArea').style.opacity = '0';
-            setTimeout(() => {
-                document.getElementById('questionArea').style.display = 'none';
-                const fo = document.getElementById('finalOverlay'); fo.style.display = 'flex';
-                setTimeout(() => fo.style.opacity = '1', 50);
-                const finalStr = "..";
-                typeEffect(document.getElementById('finalMessage'), finalStr, 60, () => {
-                    setTimeout(() => {
-                        document.getElementById('messageBox').style.display = 'block';
-                    }, 3000);
-                });
-            }, 800);
-        };
     </script>
 </body>
 </html>
