@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>إلى ستيلا ❤️</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body { margin: 0; padding: 0; height: 100vh; display: flex; justify-content: center; align-items: center; background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('image.jpg') no-repeat center center fixed; background-size: cover; background-color: #000; overflow: hidden; color: white; font-family: 'Amiri', serif; }
@@ -82,33 +84,44 @@
 
     <script>
         const song = document.getElementById('mySong');
+        // Cache frequently accessed DOM elements
+        const heartsLayer = document.getElementById('heartsLayer');
+        const welcomeScreen = document.getElementById('welcomeScreen');
+        const fpSvg = document.getElementById('fp-svg');
+        const statusText = document.getElementById('status-text');
+        const poemOverlay = document.getElementById('poemOverlay');
+        const poemText = document.getElementById('poemText');
+        const questionArea = document.getElementById('questionArea');
+        const finalOverlay = document.getElementById('finalOverlay');
+        const finalMessage = document.getElementById('finalMessage');
+        const messageBox = document.getElementById('messageBox');
+        const sendBtn = document.getElementById('sendBtn');
+        const responseMsg = document.getElementById('responseMsg');
+        const riyadhResponse = document.getElementById('riyadhResponse');
+        const riyadhText = document.getElementById('riyadhText');
 
         // كود البصمة والتحقق
         document.getElementById('fingerprintContainer').onclick = function() {
-            const status = document.getElementById('status-text');
-            const fp = document.getElementById('fp-svg');
-            status.innerText = "جاري التحقق...";
-            fp.style.fill = "#00f2ff";
+            statusText.innerText = "جاري التحقق...";
+            fpSvg.style.fill = "#00f2ff";
             setTimeout(() => {
-                status.innerText = "مرحباً ستيلا...";
-                fp.style.fill = "#4eff9b";
+                statusText.innerText = "مرحباً ستيلا...";
+                fpSvg.style.fill = "#4eff9b";
                 song.play().catch(e => console.log("Audio play blocked"));
                 setTimeout(() => {
-                    document.getElementById('welcomeScreen').style.opacity = '0';
+                    welcomeScreen.style.opacity = '0';
                     setTimeout(() => {
-                        document.getElementById('welcomeScreen').style.display = 'none';
-                        const po = document.getElementById('poemOverlay'); 
-                        po.style.display = 'flex';
-                        setTimeout(() => po.style.opacity = '1', 50);
+                        welcomeScreen.style.display = 'none';
+                        poemOverlay.style.display = 'flex';
+                        setTimeout(() => poemOverlay.style.opacity = '1', 50);
                         
-                        typeEffect(document.getElementById('poemText'), "وَلَعَلّنَا مَن بَعدِ بُعدٍ نَلتَقِي\nوَيَطيَبُ قَلبي عِندَمَا أَلْقَاكِ\nفَمَا رأَيتُ أَعَزّمَنكِ فيِ قَلبي\nوَمَا رَغبتُ فيِ أَحَدٍ سِواَكِ", 80, () => {
+                        typeEffect(poemText, "وَلَعَلّنَا مَن بَعدِ بُعدٍ نَلتَقِي\nوَيَطيَبُ قَلبي عِندَمَا أَلْقَاكِ\nفَمَا رأَيتُ أَعَزّمَنكِ فيِ قَلبي\nوَمَا رَغبتُ فيِ أَحَدٍ سِواَكِ", 80, () => {
                             setTimeout(() => {
-                                po.style.opacity = '0';
+                                poemOverlay.style.opacity = '0';
                                 setTimeout(() => {
-                                    po.style.display = 'none';
-                                    const qa = document.getElementById('questionArea'); 
-                                    qa.style.display = 'flex';
-                                    setTimeout(() => qa.style.opacity = '1', 50);
+                                    poemOverlay.style.display = 'none';
+                                    questionArea.style.display = 'flex';
+                                    setTimeout(() => questionArea.style.opacity = '1', 50);
                                 }, 800);
                             }, 4000);
                         });
@@ -130,17 +143,16 @@
 
         // عند الضغط على أكييييد
         document.getElementById('yesBtn').onclick = function() {
-            document.getElementById('questionArea').style.opacity = '0';
+            questionArea.style.opacity = '0';
             setTimeout(() => {
-                document.getElementById('questionArea').style.display = 'none';
-                const fo = document.getElementById('finalOverlay'); 
-                fo.style.display = 'flex';
-                setTimeout(() => fo.style.opacity = '1', 50);
+                questionArea.style.display = 'none';
+                finalOverlay.style.display = 'flex';
+                setTimeout(() => finalOverlay.style.opacity = '1', 50);
                 
                 // إضافة نص ترحيبي بسيط بدلاً من الفراغ التام لتهيئة ظهور الصندوق
-                typeEffect(document.getElementById('finalMessage'), "ليش سويتي كذا؟", 60, () => {
+                typeEffect(finalMessage, "ليش سويتي كذا؟", 60, () => {
                     setTimeout(() => {
-                        document.getElementById('messageBox').style.display = 'block';
+                        messageBox.style.display = 'block';
                     }, 1000);
                 });
             }, 800);
@@ -150,8 +162,8 @@
         const form = document.getElementById('stellaForm');
         form.onsubmit = async (e) => {
             e.preventDefault();
-            document.getElementById('sendBtn').disabled = true;
-            document.getElementById('sendBtn').innerText = "جاري الإرسال...";
+            sendBtn.disabled = true;
+            sendBtn.innerText = "جاري الإرسال...";
             const data = new FormData(form);
             
             try {
@@ -162,37 +174,51 @@
                 });
 
                 if (response.ok) {
-                    document.getElementById('messageBox').style.display = 'none';
-                    document.getElementById('responseMsg').style.display = 'block';
+                    messageBox.style.display = 'none';
+                    responseMsg.style.display = 'block';
 
                     setTimeout(() => {
-                        document.getElementById('riyadhResponse').style.display = 'block';
+                        riyadhResponse.style.display = 'block';
                         const riyadhMessage = "ستيلا؟ \nزعلان منك.\nضيعتي كل فرصك للاسف ماقدرتي حبي لك ماقدرتي اي شي سويته عشانك و تبي و تكلميني بعد كل الي سويتيه؟ \nعطيني سبب واحد بس يخليني اسامحك مافي.\nتحملت بلوكات تحملت كلامك الي كان يجرحني قلت عادي ممكن تفهم ولو شوي بس وش الي صار؟ \nحتى ثقتك فيني راحت وانا اشوفها اهم شي.";
-                        typeEffect(document.getElementById('riyadhText'), riyadhMessage, 60);
+                        typeEffect(riyadhText, riyadhMessage, 60);
                     }, 2000);
                 }
             } catch (error) {
-                document.getElementById('sendBtn').innerText = "حدث خطأ، حاول مجدداً";
-                document.getElementById('sendBtn').disabled = false;
+                sendBtn.innerText = "حدث خطأ، حاول مجدداً";
+                sendBtn.disabled = false;
             }
         };
 
         // أنيميشن القلوب الخلفية
         setInterval(() => {
-            const h = document.createElement('div'); h.className = 'bg-heart'; h.innerHTML = '❤';
+            const h = document.createElement('div');
+            h.className = 'bg-heart';
+            h.textContent = '❤';
             h.style.left = Math.random() * 100 + 'vw';
-            const size = Math.random() * 30 + 40; h.style.fontSize = size + 'px';
-            const dur = Math.random() * 5 + 7; h.style.setProperty('--duration', dur + 's');
-            document.getElementById('heartsLayer').appendChild(h); setTimeout(() => h.remove(), dur * 1000);
+            const size = Math.random() * 30 + 40;
+            h.style.fontSize = size + 'px';
+            const dur = Math.random() * 5 + 7;
+            h.style.setProperty('--duration', dur + 's');
+            heartsLayer.appendChild(h);
+            setTimeout(() => h.remove(), dur * 1000);
         }, 300);
 
         function typeEffect(element, text, speed, callback) {
-            let i = 0; element.innerHTML = "";
+            let i = 0;
+            element.textContent = "";
             function typing() {
                 if (i < text.length) {
-                    element.innerHTML += text.charAt(i) === '\n' ? '<br>' : text.charAt(i);
-                    i++; setTimeout(typing, speed);
-                } else if (callback) { callback(); }
+                    const char = text.charAt(i);
+                    if (char === '\n') {
+                        element.appendChild(document.createElement('br'));
+                    } else {
+                        element.appendChild(document.createTextNode(char));
+                    }
+                    i++;
+                    setTimeout(typing, speed);
+                } else if (callback) {
+                    callback();
+                }
             }
             typing();
         }
