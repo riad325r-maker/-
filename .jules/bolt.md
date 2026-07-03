@@ -1,0 +1,3 @@
+## 2025-05-15 - Optimizing DOM Performance and Animations
+**Learning:** In interactive applications with frequent DOM updates (like typing effects or falling heart particles), using `innerHTML +=` or redundant `document.getElementById` lookups within intervals causes significant performance degradation due to continuous DOM re-parsing and layout recalculations. Similarly, animating layout-affecting properties like `top` triggers expensive reflows.
+**Action:** Always prefer `textContent` and `appendChild` with `Text` nodes or pre-created elements over `innerHTML`. Cache DOM references outside loops. Use CSS `transform` for animations to leverage GPU acceleration and avoid reflows.
