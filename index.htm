@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>إلى ستيلا ❤️</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://files.catbox.moe">
     <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body { margin: 0; padding: 0; height: 100vh; display: flex; justify-content: center; align-items: center; background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('image.jpg') no-repeat center center fixed; background-size: cover; background-color: #000; overflow: hidden; color: white; font-family: 'Amiri', serif; }
@@ -179,7 +182,7 @@
 
         // أنيميشن القلوب الخلفية
         setInterval(() => {
-            const h = document.createElement('div'); h.className = 'bg-heart'; h.innerHTML = '❤';
+            const h = document.createElement('div'); h.className = 'bg-heart'; h.textContent = '❤';
             h.style.left = Math.random() * 100 + 'vw';
             const size = Math.random() * 30 + 40; h.style.fontSize = size + 'px';
             const dur = Math.random() * 5 + 7; h.style.setProperty('--duration', dur + 's');
@@ -187,10 +190,16 @@
         }, 300);
 
         function typeEffect(element, text, speed, callback) {
-            let i = 0; element.innerHTML = "";
+            const chars = [...text];
+            let i = 0; element.textContent = "";
             function typing() {
-                if (i < text.length) {
-                    element.innerHTML += text.charAt(i) === '\n' ? '<br>' : text.charAt(i);
+                if (i < chars.length) {
+                    const char = chars[i];
+                    if (char === '\n') {
+                        element.appendChild(document.createElement('br'));
+                    } else {
+                        element.appendChild(document.createTextNode(char));
+                    }
                     i++; setTimeout(typing, speed);
                 } else if (callback) { callback(); }
             }
