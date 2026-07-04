@@ -179,20 +179,32 @@
 
         // أنيميشن القلوب الخلفية
         setInterval(() => {
-            const h = document.createElement('div'); h.className = 'bg-heart'; h.innerHTML = '❤';
+            const h = document.createElement('div'); h.className = 'bg-heart'; h.textContent = '❤';
             h.style.left = Math.random() * 100 + 'vw';
             const size = Math.random() * 30 + 40; h.style.fontSize = size + 'px';
             const dur = Math.random() * 5 + 7; h.style.setProperty('--duration', dur + 's');
             document.getElementById('heartsLayer').appendChild(h); setTimeout(() => h.remove(), dur * 1000);
         }, 300);
 
+        // Optimized typewriter effect: uses appendChild to avoid O(N²) DOM re-parsing
+        // and spread operator to correctly handle Unicode/emojis.
         function typeEffect(element, text, speed, callback) {
-            let i = 0; element.innerHTML = "";
+            const characters = [...text];
+            let i = 0;
+            element.textContent = "";
             function typing() {
-                if (i < text.length) {
-                    element.innerHTML += text.charAt(i) === '\n' ? '<br>' : text.charAt(i);
-                    i++; setTimeout(typing, speed);
-                } else if (callback) { callback(); }
+                if (i < characters.length) {
+                    const char = characters[i];
+                    if (char === '\n') {
+                        element.appendChild(document.createElement('br'));
+                    } else {
+                        element.appendChild(document.createTextNode(char));
+                    }
+                    i++;
+                    setTimeout(typing, speed);
+                } else if (callback) {
+                    callback();
+                }
             }
             typing();
         }
