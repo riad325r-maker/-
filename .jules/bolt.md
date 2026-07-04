@@ -1,0 +1,3 @@
+## 2025-05-15 - [O(N²) DOM Updates and Unicode Safety]
+**Learning:** Using `element.innerHTML += char` in a loop (like a typewriter effect) causes the browser to re-parse the entire DOM content on every iteration, leading to $O(N^2)$ complexity. Additionally, `text.charAt(i)` fails to correctly handle Unicode surrogate pairs (emojis, certain scripts), which can break rendering.
+**Action:** Use `document.createTextNode()` and `appendChild()` for incremental text updates to achieve $O(N)$ performance. Use the spread operator `[...text]` or `Array.from(text)` to safely iterate over Unicode code points.
