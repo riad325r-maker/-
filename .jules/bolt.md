@@ -1,0 +1,3 @@
+## 2026-07-03 - [Typing Effect O(N^2) Performance Bottleneck]
+**Learning:** Using `innerHTML +=` for incremental text updates (like typing animations) causes the browser to re-parse the entire DOM subtree repeatedly, creating $O(N^2)$ performance overhead. Additionally, refactoring this to use `appendChild(document.createTextNode(char))` requires careful handling of surrogate pairs (emojis) by iterating over code points (e.g., using `[...text]`) instead of code units (`text.charAt(i)`).
+**Action:** Use `appendChild` with `createTextNode` for incremental text updates, and always iterate over code points when dealing with potential multi-byte characters in JavaScript.
