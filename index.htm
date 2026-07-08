@@ -187,12 +187,24 @@
         }, 300);
 
         function typeEffect(element, text, speed, callback) {
-            let i = 0; element.innerHTML = "";
+            // BOLT OPTIMIZATION: Use Array.from() for Unicode safety (handles surrogate pairs like emojis)
+            // and appendChild with text nodes to avoid O(N^2) innerHTML re-parsing performance bottleneck.
+            const characters = Array.from(text);
+            let i = 0;
+            element.textContent = "";
             function typing() {
-                if (i < text.length) {
-                    element.innerHTML += text.charAt(i) === '\n' ? '<br>' : text.charAt(i);
-                    i++; setTimeout(typing, speed);
-                } else if (callback) { callback(); }
+                if (i < characters.length) {
+                    const char = characters[i];
+                    if (char === '\n') {
+                        element.appendChild(document.createElement('br'));
+                    } else {
+                        element.appendChild(document.createTextNode(char));
+                    }
+                    i++;
+                    setTimeout(typing, speed);
+                } else if (callback) {
+                    callback();
+                }
             }
             typing();
         }
