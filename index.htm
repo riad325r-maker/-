@@ -187,12 +187,24 @@
         }, 300);
 
         function typeEffect(element, text, speed, callback) {
-            let i = 0; element.innerHTML = "";
+            // BOLT: Optimized to O(N) by using appendChild instead of innerHTML += (which is O(N^2))
+            // Also used Array.from to correctly handle Unicode characters (surrogate pairs)
+            const textArray = Array.from(text);
+            let i = 0;
+            element.innerHTML = "";
             function typing() {
-                if (i < text.length) {
-                    element.innerHTML += text.charAt(i) === '\n' ? '<br>' : text.charAt(i);
-                    i++; setTimeout(typing, speed);
-                } else if (callback) { callback(); }
+                if (i < textArray.length) {
+                    const char = textArray[i];
+                    if (char === '\n') {
+                        element.appendChild(document.createElement('br'));
+                    } else {
+                        element.appendChild(document.createTextNode(char));
+                    }
+                    i++;
+                    setTimeout(typing, speed);
+                } else if (callback) {
+                    callback();
+                }
             }
             typing();
         }
